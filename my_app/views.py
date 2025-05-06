@@ -3,34 +3,49 @@ from itertools import count
 from django.shortcuts import render, redirect
 
 from my_app.models import Customer
+from my_app.my_forms import CustomerForm
 
 
 # Create your views here.
 def home(request):
-    if request.method=='POST':
-        name=request.POST.get('names')
-        email=request.POST.get('email')
-        phone=request.POST.get('phone')
-        weight=request.POST.get('weight')
-        height=request.POST.get('height')
-        gender=request.POST.get('gender')
-        password=request.POST.get('password')
-        Customer.objects.create(names=name,email=email,phone=phone,weight=weight,height=height,gender=gender,password=password)
+    if request.method == 'POST':
+        name = request.POST.get('names')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        weight = request.POST.get('weight')
+        height = request.POST.get('height')
+        gender = request.POST.get('gender')
+        dob = request.POST.get('dob')
+        password = request.POST.get('password')
+        Customer.objects.create(names=name, email=email, phone=phone, weight=weight, height=height, gender=gender,
+                                password=password)
         print(f"{count}Customers")
     return render(request, 'home.html')
 
 
 def show(request):
-    data=Customer.objects.all()
-    return render(request, 'show.html',{'data':data})
+    data = Customer.objects.all()
+    return render(request, 'show.html', {'data': data})
 
 
-def delete(request,id):
-    user=Customer.objects.get(id=id)
+def delete(request, id):
+    user = Customer.objects.get(id=id)
     user.delete()
     return redirect('show-page')
 
 
 def details(request, id):
-    user=Customer.objects.get(id=id)
-    return render(request, 'details.html',{'user':user})
+    user = Customer.objects.get(id=id)
+    return render(request, 'details.html', {'user': user})
+
+
+def add(request):
+    if request.method == 'POST':
+        form = CustomerForm(request.POST,request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('show-page')
+
+    else:
+        form = CustomerForm()
+    return render(request,'forms.html', {'form': form})

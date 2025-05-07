@@ -1,12 +1,15 @@
 from itertools import count
 
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
 from my_app.models import Customer
-from my_app.my_forms import CustomerForm
+from my_app.my_forms import CustomerForm, LoginForm
 
 
 # Create your views here.
+@login_required
 def home(request):
     if request.method == 'POST':
         name = request.POST.get('names')
@@ -22,23 +25,23 @@ def home(request):
         print(f"{count}Customers")
     return render(request, 'home.html')
 
-
+@login_required
 def show(request):
     data = Customer.objects.all()
     return render(request, 'show.html', {'data': data})
 
-
+@login_required
 def delete(request, id):
     user = Customer.objects.get(id=id)
     user.delete()
     return redirect('show-page')
 
-
+@login_required
 def details(request, id):
     user = Customer.objects.get(id=id)
     return render(request, 'details.html', {'user': user})
 
-
+@login_required
 def add(request):
     if request.method == 'POST':
         form = CustomerForm(request.POST,request.FILES)
@@ -49,3 +52,18 @@ def add(request):
     else:
         form = CustomerForm()
     return render(request,'forms.html', {'form': form})
+
+
+def signin(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user:
+                login(request, user)
+                return redirect('home-page')
+    else:
+        form=LoginForm()
+    return render(request, 'signin.html', {'form': form})

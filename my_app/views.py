@@ -3,9 +3,12 @@ from itertools import count
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from my_app.models import Customer
 from my_app.my_forms import CustomerForm, LoginForm
+from my_app.my_serializers import CustomerSerializer
 
 
 # Create your views here.
@@ -63,7 +66,13 @@ def signin(request):
             user = authenticate(request, username=username, password=password)
             if user:
                 login(request, user)
-                return redirect('home-page')
+                return redirect('home')
     else:
         form=LoginForm()
     return render(request, 'signin.html', {'form': form})
+
+@api_view(['GET'])
+def api_customers(request):
+    data = Customer.objects.all()
+    serializer = CustomerSerializer(data, many=True)
+    return Response(serializer.data)

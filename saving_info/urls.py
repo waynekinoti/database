@@ -23,6 +23,7 @@ from my_app import views
 from saving_info import settings
 
 urlpatterns = [
+    path('api/customers',views.api_customers,name='api_customers'),
     path('signin',views.signin,name='signin-page'),
     path('',views.home,name='home'),
     path('show',views.show, name='show-page'),
